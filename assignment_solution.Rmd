@@ -1,0 +1,1033 @@
+```{r}
+#install.packages("matlib")
+#install.packages("rsample")
+```
+
+#importing needed library
+
+```{r}
+library(matlib)
+library(ggplot2)
+library(rsample)
+```
+
+#importing input data from csv file
+
+```{r}
+X=as.matrix(read.csv(file="D:/Softwarica/Stat Assignment/modifiedx.csv",header = F))
+colnames(X)<-c("x1","x3","x4","x5")
+```
+
+#displaying imported data
+
+```{r}
+head(X)
+```
+
+#importing targated data
+
+```{r}
+Y=as.matrix(read.csv(file="D:/Softwarica/Stat Assignment/y.csv",header = F))
+colnames(Y)<-c("y")
+```
+
+#displaying targeted data
+
+```{r}
+head(Y)
+```
+
+#importing time series data data
+
+```{r}
+time = read.csv("D:/Softwarica/Stat Assignment/t.csv", header = F)
+time = as.matrix(time)
+```
+
+#displaying time series data
+
+```{r}
+head(time)
+```
+
+#task 1.1 #plotting time series data
+
+```{r}
+X.ts<-ts(X,start = c(min(time),max(time)),frequency =1)
+Y.ts<-ts(Y,start = c(min(time),max(time)),frequency =1)
+```
+
+#plotting timeseries data of input and target variable
+
+```{r}
+plot(X.ts,main = "Time series plot of X Signal", xcal = "Time", ylab = "Input signal")
+plot(Y.ts,main = "Time series plot of Y Signal", xcal = "Time", ylab = "Output signal")
+```
+
+# task 1.2 : Plotting distribution of each input
+
+#histogram and density plot of individual input signal X and output signal y
+
+```{r}
+#Creating a density plot of input signal X1 
+density_X1=density(X[,"x1"])
+hist(X[,"x1"],freq = FALSE,col='yellow', main = "Histogram and density plot of x1",xcal = "x1 Signal")
+lines(density_X1,lwd=2,col="red")
+# Add the data-points with noise in the X-axis
+rug(jitter(X[,"x1"]))
+
+
+#Creating a density plot of input signal X3 
+density_X3=density(X[,"x3"])
+hist(X[,"x3"],freq = FALSE,col='yellow',main = "Histogram and density plot of x3",xcal = "x3 Signal")
+lines(density_X3,lwd=2,col="red")
+# Add the data-points with noise in the X-axis
+rug(jitter(X[,"x3"]))
+
+
+#Creating a density plot of input signal X4
+density_X4=density(X[,"x4"])
+hist(X[,"x4"],freq = FALSE,col='yellow',main = "Histogram and density plot of x4",xcal = "x4 Signal")
+lines(density_X4,lwd=2,col="red")
+# Add the data-points with noise in the X-axis
+rug(jitter(X[,"x4"]))
+
+#Creating a density plot of input signal X5
+density_X5=density(X[,"x5"])
+hist(X[,"x5"],freq = FALSE,col='yellow',main = "Histogram and density plot of x5",xcal = "x5 Signal")
+lines(density_X5,lwd=2,col="red")
+# Add the data-points with noise in the X-axis
+rug(jitter(X[,"x5"]))
+
+
+#Creating a density plot of output signal y
+density_y=density(Y[,"y"])
+hist(Y[,"y"],freq = FALSE,col='yellow',main = "Histogram and density plot of y",xcal = "y Signal")
+lines(density_y,lwd=2,col="red")
+# Add the data-points with noise in the X-axis
+rug(jitter(Y[,"y"]))
+
+
+```
+
+# Task 1.3 creating scatter plots to indeitify correlation
+
+# arrenging plot in a single screen
+
+```{r}
+par(mfrow=c(2,2))
+
+# Plotting input signal X1 against output signal Y
+plot(X[,"x1"],Y,main = "Correlation betweeen X1 and Y signal", xcal = "X1 signal", ylab = "Output signal y")
+
+# Plotting input signal X3 against output signal Y
+plot(X[,"x3"],Y,main = "Correlation betweeen X3 and Y signal", xcal = "X3 signal", ylab = "Output signal y")
+
+# Plotting input signal X4 against output signal Y
+plot(X[,"x4"],Y,main = "Correlation betweeen X4 and Y signal", xcal = "X4 signal", ylab = "Output signal y")
+
+# Plotting input signal X5 against output signal Y
+plot(X[,"x5"],Y,main = "Correlation betweeen X5 and Y signal", xcal = "X5 signal", ylab = "Output signal y")
+
+```
+
+
+# Task 2
+
+# Calculating ones for binding the data
+
+```{r}
+ones = matrix(1 , length(X)/4,1)
+head(ones)
+```
+```{r}
+
+head(mean(X[,"x3"]))
+head(sd(X[,"x3"]))
+
+
+```
+
+# Task 2.1
+
+```{r}
+x3_std <- (X[,"x3"] - mean(X[,"x3"])) / sd(X[,"x3"])
+x4_std <- (X[,"x4"] - mean(X[,"x4"])) / sd(X[,"x4"])
+
+# Create the design matrix with standardized values
+# Note: We square x3_std after standardization
+X_model1_std <- cbind(ones, x4_std, x3_std^2)
+
+# Calculate thetahat with standardized data
+Model1_thetahat_std <- solve(t(X_model1_std) %*% X_model1_std) %*% t(X_model1_std) %*% Y
+
+# Show results
+head(X_model1_std)
+Model1_thetahat_std
+```
+
+```{r}
+# Standardize x3, x4, x5
+x3_std <- (X[,"x3"] - mean(X[,"x3"])) / sd(X[,"x3"])
+x4_std <- (X[,"x4"] - mean(X[,"x4"])) / sd(X[,"x4"])
+x5_std <- (X[,"x5"] - mean(X[,"x5"])) / sd(X[,"x5"])
+
+# Model matrix (x3² is squared AFTER standardization)
+X_model2_std <- cbind(ones, x4_std, x3_std^2, x5_std)
+
+# Theta hat calculation
+Model2_thetahat_std <- solve(t(X_model2_std) %*% X_model2_std) %*% t(X_model2_std) %*% Y
+
+head(X_model2_std)
+
+Model2_thetahat_std
+
+
+```
+
+```{r}
+# Standardize x3, x4, x5
+x3_std <- (X[,"x3"] - mean(X[,"x3"])) / sd(X[,"x3"])
+x4_std <- (X[,"x4"] - mean(X[,"x4"])) / sd(X[,"x4"])
+x5_std <- (X[,"x5"] - mean(X[,"x5"])) / sd(X[,"x5"])
+
+# Model matrix (x5³ is cubed AFTER standardization)
+X_model3_std <- cbind(x3_std, x4_std, x5_std^3)
+
+# Theta hat calculation
+Model3_thetahat_std <- qr.solve(t(X_model3_std) %*% X_model3_std) %*% t(X_model3_std) %*% Y
+
+
+
+head(X_model3_std)
+
+Model3_thetahat_std
+
+```
+
+```{r}
+# Standardize x3, x4, x5
+x3_std <- (X[,"x3"] - mean(X[,"x3"])) / sd(X[,"x3"])
+x4_std <- (X[,"x4"] - mean(X[,"x4"])) / sd(X[,"x4"])
+x5_std <- (X[,"x5"] - mean(X[,"x5"])) / sd(X[,"x5"])
+
+# Model matrix (x3² and x5³ computed AFTER standardization)
+X_model4_std <- cbind(ones, x4_std, x3_std^2, x5_std^3)
+
+# Theta hat calculation (using solve instead of Ginv)
+Model4_thetahat_std <- solve(t(X_model4_std) %*% X_model4_std) %*% t(X_model4_std) %*% Y
+
+head(X_model4_std)
+
+Model4_thetahat_std
+```
+
+```{r}
+# Standardize x1, x3, x4
+x1_std <- (X[,"x1"] - mean(X[,"x1"])) / sd(X[,"x1"])
+x3_std <- (X[,"x3"] - mean(X[,"x3"])) / sd(X[,"x3"])
+x4_std <- (X[,"x4"] - mean(X[,"x4"])) / sd(X[,"x4"])
+
+# Model matrix (x1² and x3² computed AFTER standardization)
+X_model5_std <- cbind(ones, x4_std, x1_std^2, x3_std^2)
+
+# Theta hat calculation
+Model5_thetahat_std <- solve(t(X_model5_std) %*% X_model5_std) %*% t(X_model5_std) %*% Y
+
+head(X_model5_std)
+Model5_thetahat_std
+```
+```{r}
+is.numeric(Y)
+is.matrix(X_model1_std)
+nrow(X_model1_std)
+length(Y)
+```
+
+# Task 2.2
+
+#Calculating Y-hat and RSS for each model
+
+```{r}
+#Calculating Y-hat and RSS Model 1
+Y_hat_model1 = X_model1_std %*% Model1_thetahat_std
+head(Y_hat_model1)
+#Calculating RSS
+RSS_Model_1=sum((Y-Y_hat_model1)^2)
+
+
+# Calculating Y-hat and RSS of model 2
+Y_hat_model2 = X_model2_std %*% Model2_thetahat_std
+head(Y_hat_model2)
+#Calculating RSS
+RSS_Model_2=sum((Y-Y_hat_model2)^2)
+
+
+# Calculating Y-hat and RSS of model 3
+Y_hat_model3 = X_model3_std %*% Model3_thetahat_std
+head(Y_hat_model3)
+#Calculating RSS
+RSS_Model_3=sum((Y-Y_hat_model3)^2)
+
+ 
+# Calculating Y-hat and RSS of model 4
+Y_hat_model4 = X_model4_std %*% Model4_thetahat_std
+head(Y_hat_model4)
+#Calculating RSS
+RSS_Model_4=sum((Y-Y_hat_model4)^2)
+
+
+# Calculating Y-hat and RSS of model 5
+Y_hat_model5 = X_model5_std %*% Model5_thetahat_std
+head(Y_hat_model5)
+#Calculating RSS
+RSS_Model_5=sum((Y-Y_hat_model5)^2)
+
+```
+
+#printing RSS value
+
+```{r}
+model1 <- c(RSS_Model_1)
+model2 <- c(RSS_Model_2)
+model3 <- c(RSS_Model_3)
+model4 <- c(RSS_Model_4)
+model5 <- c(RSS_Model_5)
+
+dfRSS <- data.frame(model1, model2,model3,model4,model5)
+dfRSS
+
+#anova(lm(X_model2), lm(X_model5))
+#anova
+```
+
+```{r}
+cat("RSS for Model 1:")
+head(RSS_Model_1)
+
+cat("RSS for Model 2:")
+head(RSS_Model_2)
+
+cat("RSS for Model 3:")
+head(RSS_Model_3)
+
+cat("RSS for Model 4:")
+head(RSS_Model_4)
+
+cat("RSS for Model 5:")
+head(RSS_Model_5)
+```
+
+#Task 2.3 Calculating log likelihood and Variance of each model
+
+```{r}
+N=length(Y)
+
+#Calculating the Variance of Model 1
+Variance_model1=RSS_Model_1/(N-1)
+Variance_model1
+
+#Calculating the log-likelihood of Model 1
+likehood_Model_1=
+  -(N/2)*(log(2*pi))-(N/2)*(log(Variance_model1))-(1/(2*Variance_model1))*RSS_Model_1
+likehood_Model_1
+
+#Calculating Variance and log-likelihood of Model 2
+Variance_model2=RSS_Model_2/(N-1)
+Variance_model2
+likehood_Model_2=
+  -(N/2)*(log(2*pi))-(N/2)*(log(Variance_model2))-(1/(2*Variance_model2))*RSS_Model_2
+likehood_Model_2
+
+
+#Calculating Variance and log-likelihood of Model 3
+Variance_model3=RSS_Model_3/(N-1)
+Variance_model3
+likehood_Model_3=
+  -(N/2)*(log(2*pi))-(N/2)*(log(Variance_model3))-(1/(2*Variance_model3))*RSS_Model_3
+likehood_Model_3
+
+#Calculating Variance and log-likelihood of Model 4
+Variance_model4=RSS_Model_4/(N-1)
+Variance_model4
+likehood_Model_4=
+  -(N/2)*(log(2*pi))-(N/2)*(log(Variance_model4))-(1/(2*Variance_model4))*RSS_Model_4
+likehood_Model_4
+
+#Calculating Variance and log-likelihood of Model 5
+Variance_model5=RSS_Model_5/(N-1)
+Variance_model5
+likehood_Model_5=
+  -(N/2)*(log(2*pi))-(N/2)*(log(Variance_model5))-(1/(2*Variance_model5))*RSS_Model_5
+likehood_Model_5
+```
+
+#printing variance values
+
+```{r}
+model1 <- c(Variance_model1)
+model2 <- c(Variance_model2)
+model3 <- c(Variance_model3)
+model4 <- c(Variance_model4)
+model5 <- c(Variance_model5)
+
+dfVariance <- data.frame(model1, model2,model3,model4,model5)
+dfVariance
+```
+
+#printing likelihood values
+
+```{r}
+model1 <- c(likehood_Model_1)
+model2 <- c(likehood_Model_2)
+model3 <- c(likehood_Model_3)
+model4 <- c(likehood_Model_4)
+model5 <- c(likehood_Model_5)
+
+dfLikelihood <- data.frame(model1, model2,model3,model4,model5)
+dfLikelihood
+```
+
+# Task 2.4
+
+# Calculating AIC And BIC of each model
+
+```{r}
+# Calculating AIC and BIC of model 1
+K_model1<-length(Model1_thetahat_std)
+K_model1
+AIC_model1=2*K_model1-2*likehood_Model_1
+AIC_model1
+BIC_model1=K_model1*log(N)-2*likehood_Model_1
+BIC_model1
+
+## thetahat of model 2
+K_model2<-length(Model2_thetahat_std)
+K_model2
+##Calculating AIC and BIC of model 2
+AIC_model2=2*K_model2-2*likehood_Model_2
+AIC_model2
+BIC_model2=K_model2*log(N)-2*likehood_Model_2
+BIC_model2
+
+## thetahat of model 3
+K_model3<-length(Model3_thetahat_std)
+K_model3
+##Calculating AIC and BIC of model 3
+AIC_model3=2*K_model3-2*likehood_Model_3
+AIC_model3
+BIC_model3=K_model3*log(N)-2*likehood_Model_3
+BIC_model3
+
+## thetahat of model 4
+K_model4<-length(Model4_thetahat_std)
+K_model4
+##Calculating AIC and BIC of model 4
+AIC_model4=2*K_model4-2*likehood_Model_4
+AIC_model4
+BIC_model4=K_model4*log(N)-2*likehood_Model_4
+BIC_model4
+
+## thetahat of model 5
+K_model5<-length(Model5_thetahat_std)
+K_model5
+##Calculating AIC and BIC of model 5
+AIC_model5=2*K_model5-2*likehood_Model_5
+AIC_model5
+BIC_model5=K_model5*log(N)-2*likehood_Model_5
+BIC_model5
+```
+
+#printing K values
+
+```{r}
+model1 <- c(K_model1)
+model2 <- c(K_model2)
+model3 <- c(K_model3)
+model4 <- c(K_model4)
+model5 <- c(K_model5)
+
+dfK <- data.frame(model1, model2,model3,model4,model5)
+dfK
+```
+
+#printing AIC values
+
+```{r}
+model1 <- c(AIC_model1)
+model2 <- c(AIC_model2)
+model3 <- c(AIC_model3)
+model4 <- c(AIC_model4)
+model5 <- c(AIC_model5)
+
+dfAIC <- data.frame(model1, model2,model3,model4,model5)
+dfAIC
+```
+
+#printing BIC values
+
+```{r}
+model1 <- c(BIC_model1)
+model2 <- c(BIC_model2)
+model3 <- c(BIC_model3)
+model4 <- c(BIC_model4)
+model5 <- c(BIC_model5)
+
+dfBIC <- data.frame(model1, model2,model3,model4,model5)
+dfBIC
+```
+
+## Task 2.5 calculating error plotting normal/gaussian distibution of each plot
+
+```{r}
+par(mfrow=c(1,1))
+
+## Error of model1
+model1_error <- Y-Y_hat_model1
+model1_error
+
+## Plotting the graph QQplot and QQ line of model 1
+qqnorm(model1_error, col = "darkblue",main = "QQ plot of model 1")
+qqline(model1_error, col = "red",lwd=1)
+
+
+## Error of model2
+model2_error <- Y-Y_hat_model2 # error of model 2
+## Plotting QQplot and QQ line of model 2
+qqnorm(model2_error, col = "darkblue",main = "QQ plot of model 2")
+qqline(model2_error, col = "red")
+
+
+## Error of model3
+model3_error <- Y- Y_hat_model3
+## Plotting QQplot and QQ line of model 3
+qqnorm(model3_error, col = "darkblue",main = "QQ plot of model 3")
+qqline(model3_error, col = "red")
+
+## Error of model4
+model4_error <- Y-Y_hat_model4
+## Plotting QQplot and QQ line of model 4
+qqnorm(model4_error, col = "darkblue",main = "QQ plot of model 4")
+qqline(model4_error, col = "red")
+
+## Error of model5
+model5_error <- Y- Y_hat_model5
+## Plotting QQplot and QQ line of model 5
+qqnorm(model5_error, col = "darkblue",main = "QQ plot of model 5")
+qqline(model5_error, col = "red")
+```
+
+
+# Task 2.7 splitting data into training and testing dataset and calculating estamation based on training dataset
+
+#also plotting normal distribution graph of training data
+
+```{r}
+## Spliting the dataset y into  training and testing data set.
+split_Y<-initial_split(data = as.data.frame(Y),prop=.7)
+## training splitted Y dataset 
+Y_training_set<-training(split_Y)
+Y_testing_set<-as.matrix(testing(split_Y))
+## Testing splitted Y dataset 
+Y_training_data<-as.matrix(Y_training_set)
+
+## Spliting the dataset of X into  training and testing data set.
+split_X<-initial_split(data = as.data.frame(X),prop=.7)
+## training splitted X dataset
+X_training_set<-training(split_X)
+## Testing splitted X dataset 
+X_testing_set<-as.matrix(testing(split_X))
+X_testing_data<-as.matrix(X_testing_set)
+X_training_data<-as.matrix(X_training_set)
+
+### Estimating model parameters using training set
+#training_ones=matrix(1 , length(X_training_set$x1),1)
+training_ones <- matrix(1, nrow = nrow(X_training_set), ncol = 1)
+# selected model 2 and using equation of model 2
+X_training_model<-cbind(training_ones,X_training_set[,"x4"],(X_training_set[,"x3"])^2,X_training_set[,"x5"])
+
+training_thetahat <- solve(t(X_training_model) %*% X_training_model) %*% t(X_training_model) %*% Y_training_data
+
+
+#training_thetahat=Ginv(t(X_training_model) %*% X_training_model) %*% t(X_training_model) %*%  Y_training_data
+  
+### Model out/Prediction
+Y_testing_hat = X_testing_data %*% training_thetahat
+head(Y_testing_hat)
+
+RSS_testing=sum((Y_testing_set-Y_testing_hat)^2)
+head(RSS_testing)
+
+t.test(Y_training_data, mu=500, alternative="two.sided", conf.level=0.95)
+
+C_I1=454.0137
+C_I2=454.8377
+p2 <- plot(density(Y_training_data), col="blue", lwd=2,
+           main="Distribution of training Data")
+abline(v=C_I1,col="red", lty=2)
+abline(v=C_I2,col="red", lty=2)
+
+thetaHat_training =solve(t(X_training_data) %*% X_training_data) %*% t(X_training_data) %*%Y_training_data
+head(thetaHat_training)
+length(thetaHat_training)
+dis_test=density(Y_training_data)
+plot((dis_test))
+plot(dis_test,main = "Density plot of Y Signal")
+
+### Calculating Confidential interval
+z=1.96 ##(95%) Confidential interval
+# error=((Y_testing_set-Y_testing_hat))
+# n_len=length(Y_testing_hat)
+# C_I_1= z * sqrt( (error * (1-error) ) / n_len)
+# head(C_I_1)
+# head(error)
+# C_I_2= z * sqrt( (error * (1+error)) / n_len)
+# head(C_I_2)        
+
+Variance_model = mean((Y_testing_set - Y_testing_hat)^2)
+se = sqrt(Variance_model)
+CI_lower = Y_testing_hat - z * se
+CI_upper = Y_testing_hat + z * se
+head(CI_lower)
+head(CI_upper)
+
+
+```
+
+
+
+```{r}
+# Using Model 2 as the selected 'best' model: Y = θ₀ + θ₁x₄ + θ₂x₃² + θ₃x₅ + ε
+
+cat("Task 2.7: Model Validation Analysis\n")
+cat("==================================================\n")
+
+# Step 1: Split dataset into training (70%) and testing (30%)
+set.seed(123)  # For reproducibility
+split_Y <- initial_split(data = as.data.frame(Y), prop = 0.7)
+Y_training_set <- training(split_Y)
+Y_testing_set <- as.matrix(testing(split_Y))
+Y_training_data <- as.matrix(Y_training_set)
+
+split_X <- initial_split(data = as.data.frame(X), prop = 0.7)
+X_training_set <- training(split_X)
+X_testing_set <- as.matrix(testing(split_X))
+X_training_data <- as.matrix(X_training_set)
+
+# Print split information
+cat("Dataset Split Information:\n")
+cat("Training set size:", nrow(Y_training_data), "samples (70%)\n")
+cat("Testing set size:", nrow(Y_testing_set), "samples (30%)\n")
+cat("Total samples:", nrow(Y), "\n\n")
+
+# Step 2: Standardize training data and apply same transformation to test data
+# Calculate standardization parameters from training data only
+x3_mean_train <- mean(X_training_set[,"x3"])
+x3_sd_train <- sd(X_training_set[,"x3"])
+x4_mean_train <- mean(X_training_set[,"x4"])
+x4_sd_train <- sd(X_training_set[,"x4"])
+x5_mean_train <- mean(X_training_set[,"x5"])
+x5_sd_train <- sd(X_training_set[,"x5"])
+
+# Standardize training data
+x3_std_train <- (X_training_set[,"x3"] - x3_mean_train) / x3_sd_train
+x4_std_train <- (X_training_set[,"x4"] - x4_mean_train) / x4_sd_train
+x5_std_train <- (X_training_set[,"x5"] - x5_mean_train) / x5_sd_train
+
+# Apply same standardization to test data
+x3_std_test <- (X_testing_set[,"x3"] - x3_mean_train) / x3_sd_train
+x4_std_test <- (X_testing_set[,"x4"] - x4_mean_train) / x4_sd_train
+x5_std_test <- (X_testing_set[,"x5"] - x5_mean_train) / x5_sd_train
+
+# Create design matrices for Model 2
+training_ones <- matrix(1, nrow = nrow(X_training_set), ncol = 1)
+testing_ones <- matrix(1, nrow = nrow(X_testing_set), ncol = 1)
+
+X_training_model2 <- cbind(training_ones, x4_std_train, x3_std_train^2, x5_std_train)
+X_testing_model2 <- cbind(testing_ones, x4_std_test, x3_std_test^2, x5_std_test)
+
+# Step 3: Estimate model parameters using ONLY training dataset (OLS)
+training_thetahat <- solve(t(X_training_model2) %*% X_training_model2) %*% 
+                     t(X_training_model2) %*% Y_training_data
+
+cat("Model 2 Parameters (estimated from training data):\n")
+cat("θ₀ (intercept):", training_thetahat[1], "\n")
+cat("θ₁ (x₄ coefficient):", training_thetahat[2], "\n") 
+cat("θ₂ (x₃² coefficient):", training_thetahat[3], "\n")
+cat("θ₃ (x₅ coefficient):", training_thetahat[4], "\n\n")
+
+# Step 4: Compute predictions on testing data
+Y_testing_pred <- X_testing_model2 %*% training_thetahat
+
+# Calculate model performance metrics
+RSS_testing <- sum((Y_testing_set - Y_testing_pred)^2)
+MSE_testing <- mean((Y_testing_set - Y_testing_pred)^2)
+RMSE_testing <- sqrt(MSE_testing)
+R_squared_testing <- 1 - sum((Y_testing_set - Y_testing_pred)^2) / 
+                     sum((Y_testing_set - mean(Y_testing_set))^2)
+
+cat("Model Performance on Testing Data:\n")
+cat("RSS:", RSS_testing, "\n")
+cat("MSE:", MSE_testing, "\n")
+cat("RMSE:", RMSE_testing, "\n")
+cat("R²:", R_squared_testing, "\n\n")
+
+# Step 5: Calculate 95% confidence intervals for predictions
+# Calculate residual standard error from training data
+Y_training_pred <- X_training_model2 %*% training_thetahat
+training_residuals <- Y_training_data - Y_training_pred
+residual_se <- sqrt(sum(training_residuals^2) / (nrow(X_training_model2) - ncol(X_training_model2)))
+
+# Calculate prediction standard errors
+XtX_inv <- solve(t(X_training_model2) %*% X_training_model2)
+prediction_se <- sapply(1:nrow(X_testing_model2), function(i) {
+  x_i <- X_testing_model2[i, ]
+  residual_se * sqrt(1 + as.numeric(t(x_i) %*% XtX_inv %*% x_i))
+})
+
+# 95% confidence intervals using t-distribution
+dof <- nrow(X_training_model2) - ncol(X_training_model2)
+t_critical <- qt(0.975, dof)
+CI_lower <- Y_testing_pred - t_critical * prediction_se
+CI_upper <- Y_testing_pred + t_critical * prediction_se
+
+cat("95% Confidence Interval Statistics:\n")
+cat("Average CI width:", mean(CI_upper - CI_lower), "\n")
+cat("Min CI width:", min(CI_upper - CI_lower), "\n")
+cat("Max CI width:", max(CI_upper - CI_lower), "\n\n")
+
+# Step 6: Create comprehensive visualizations
+
+# Figure 1: Model predictions vs actual values with confidence intervals
+par(mfrow=c(2,2))
+
+# Sort data for better visualization
+sort_indices <- order(Y_testing_pred)
+Y_test_sorted <- Y_testing_set[sort_indices]
+Y_pred_sorted <- Y_testing_pred[sort_indices]
+CI_lower_sorted <- CI_lower[sort_indices]
+CI_upper_sorted <- CI_upper[sort_indices]
+
+# Plot 1: Predictions with confidence intervals
+plot(1:length(Y_pred_sorted), Y_pred_sorted, type="l", col="red", lwd=2,
+     ylim=range(c(CI_lower_sorted, CI_upper_sorted, Y_test_sorted)),
+     xlab="Test Sample (sorted by prediction)", ylab="Response Variable",
+     main="Model Predictions vs Testing Data\nwith 95% Confidence Intervals")
+points(1:length(Y_test_sorted), Y_test_sorted, col="blue", pch=16, cex=0.8)
+polygon(c(1:length(Y_pred_sorted), rev(1:length(Y_pred_sorted))),
+         c(CI_lower_sorted, rev(CI_upper_sorted)), 
+         col=rgb(1,0,0,0.2), border=NA)
+legend("topleft", c("Predictions", "Actual Values", "95% CI"), 
+       col=c("red", "blue", rgb(1,0,0,0.2)), 
+       lty=c(1,NA,1), pch=c(NA,16,15), cex=0.8)
+
+# Plot 2: Predicted vs Actual scatter plot
+plot(Y_testing_pred, Y_testing_set, 
+     xlab="Predicted Values", ylab="Actual Values",
+     main="Predicted vs Actual Values\n(Testing Data)",
+     col="darkblue", pch=16, cex=0.8)
+abline(0, 1, col="red", lwd=2, lty=2)
+abline(lm(Y_testing_set ~ Y_testing_pred), col="green", lwd=2)
+legend("topleft", c("Perfect Prediction", "Fitted Line"), 
+       col=c("red", "green"), lty=c(2,1), lwd=2, cex=0.8)
+
+# Plot 3: Residuals plot
+residuals_test <- Y_testing_set - Y_testing_pred
+plot(Y_testing_pred, residuals_test,
+     xlab="Predicted Values", ylab="Residuals",
+     main="Residuals vs Predicted Values\n(Testing Data)",
+     col="purple", pch=16, cex=0.8)
+abline(h=0, col="red", lwd=2, lty=2)
+lines(smooth.spline(Y_testing_pred, residuals_test), col="blue", lwd=2)
+
+# Plot 4: Q-Q plot of residuals
+qqnorm(residuals_test, col="darkgreen", pch=16, cex=0.8,
+       main="Q-Q Plot of Testing Residuals")
+qqline(residuals_test, col="red", lwd=2)
+
+# Reset plotting parameters
+par(mfrow=c(1,1))
+
+# Figure 2: Training vs Testing Performance Comparison
+Y_training_pred_full <- X_training_model2 %*% training_thetahat
+RSS_training <- sum((Y_training_data - Y_training_pred_full)^2)
+MSE_training <- mean((Y_training_data - Y_training_pred_full)^2)
+RMSE_training <- sqrt(MSE_training)
+R_squared_training <- 1 - sum((Y_training_data - Y_training_pred_full)^2) / 
+                      sum((Y_training_data - mean(Y_training_data))^2)
+
+
+```
+
+```{r}
+cat("Task 3: Approximate Bayesian Computation (ABC)\n")
+cat("===============================================\n\n")
+
+# Recreate Model 2 from Task 2.1 using complete dataset
+ones <- matrix(1, nrow(X), 1)
+
+# Standardize predictors using complete dataset
+x3_std <- (X[,"x3"] - mean(X[,"x3"])) / sd(X[,"x3"])
+x4_std <- (X[,"x4"] - mean(X[,"x4"])) / sd(X[,"x4"])
+x5_std <- (X[,"x5"] - mean(X[,"x5"])) / sd(X[,"x5"])
+
+# Create design matrix for Model 2: Y = θ₀ + θ₁x₄ + θ₂x₃² + θ₃x₅ + ε
+X_model2 <- cbind(ones, x4_std, x3_std^2, x5_std)
+
+# Estimate parameters using OLS (from Task 2.1)
+Model2_thetahat <- solve(t(X_model2) %*% X_model2) %*% t(X_model2) %*% Y
+
+cat("Original Model 2 Parameter Estimates (Task 2.1):\n")
+cat("θ₀ (intercept):", Model2_thetahat[1,1], "\n")
+cat("θ₁ (x₄ coefficient):", Model2_thetahat[2,1], "\n")
+cat("θ₂ (x₃² coefficient):", Model2_thetahat[3,1], "\n")
+cat("θ₃ (x₅ coefficient):", Model2_thetahat[4,1], "\n\n")
+
+# Step 1: Identify 2 parameters with largest absolute values
+abs_values <- abs(Model2_thetahat[,1])
+param_names <- c("θ₀", "θ₁", "θ₂", "θ₃")
+param_df <- data.frame(
+  Parameter = param_names,
+  Value = Model2_thetahat[,1],
+  Abs_Value = abs_values
+)
+
+# Sort by absolute value and select top 2
+param_sorted <- param_df[order(param_df$Abs_Value, decreasing = TRUE),]
+top_2_params <- param_sorted[1:2,]
+
+cat("Parameters with largest absolute values:\n")
+print(top_2_params)
+cat("\n")
+
+# Extract the two parameters for ABC
+param1_idx <- which(param_names == top_2_params$Parameter[1])
+param2_idx <- which(param_names == top_2_params$Parameter[2])
+param1_value <- Model2_thetahat[param1_idx,1]
+param2_value <- Model2_thetahat[param2_idx,1]
+
+cat("Selected parameters for ABC:\n")
+cat("Parameter 1:", top_2_params$Parameter[1], "=", param1_value, "\n")
+cat("Parameter 2:", top_2_params$Parameter[2], "=", param2_value, "\n\n")
+
+# Step 2: Define uniform priors around estimated values
+# Use ±20% range around estimated values for uniform priors
+prior_range_factor <- 0.2
+
+param1_prior_min <- param1_value * (1 - prior_range_factor)
+param1_prior_max <- param1_value * (1 + prior_range_factor)
+param2_prior_min <- param2_value * (1 - prior_range_factor)
+param2_prior_max <- param2_value * (1 + prior_range_factor)
+
+cat("Prior distributions (Uniform):\n")
+cat("Parameter 1 prior: U(", param1_prior_min, ",", param1_prior_max, ")\n")
+cat("Parameter 2 prior: U(", param2_prior_min, ",", param2_prior_max, ")\n\n")
+
+# Step 3: Calculate baseline RSS from original model
+Y_hat_original <- X_model2 %*% Model2_thetahat
+RSS_original <- sum((Y - Y_hat_original)^2)
+
+# Set tolerance (epsilon) for rejection ABC
+epsilon <- RSS_original * 1.1  # Accept models within 10% of original RSS
+
+cat("ABC Setup:\n")
+cat("Original RSS:", RSS_original, "\n")
+cat("Tolerance (ε):", epsilon, "\n\n")
+
+# Step 4: Perform Rejection ABC
+set.seed(123)  # For reproducibility
+n_iterations <- 10000
+n_accepted <- 0
+
+# Storage for accepted parameters
+accepted_param1 <- numeric()
+accepted_param2 <- numeric()
+accepted_rss <- numeric()
+
+cat("Running Rejection ABC with", n_iterations, "iterations...\n")
+
+# Progress tracking
+progress_points <- seq(1000, n_iterations, 1000)
+
+for(i in 1:n_iterations) {
+  # Sample from uniform priors
+  theta1_sample <- runif(1, param1_prior_min, param1_prior_max)
+  theta2_sample <- runif(1, param2_prior_min, param2_prior_max)
+  
+  # Create parameter vector with sampled and fixed values
+  theta_sample <- Model2_thetahat  # Start with original estimates
+  theta_sample[param1_idx] <- theta1_sample  # Replace with sampled value
+  theta_sample[param2_idx] <- theta2_sample  # Replace with sampled value
+  
+  # Calculate predicted Y and RSS with sampled parameters
+  Y_hat_sample <- X_model2 %*% theta_sample
+  RSS_sample <- sum((Y - Y_hat_sample)^2)
+  
+  # Rejection criterion
+  if(RSS_sample <= epsilon) {
+    n_accepted <- n_accepted + 1
+    accepted_param1 <- c(accepted_param1, theta1_sample)
+    accepted_param2 <- c(accepted_param2, theta2_sample)
+    accepted_rss <- c(accepted_rss, RSS_sample)
+  }
+  
+  # Progress update
+  if(i %in% progress_points) {
+    cat("Iteration", i, "- Accepted:", n_accepted, 
+        "- Acceptance rate:", round(n_accepted/i * 100, 2), "%\n")
+  }
+}
+
+cat("\nABC Results:\n")
+cat("Total iterations:", n_iterations, "\n")
+cat("Accepted samples:", n_accepted, "\n")
+cat("Final acceptance rate:", round(n_accepted/n_iterations * 100, 2), "%\n\n")
+
+# Check if we have enough accepted samples
+if(n_accepted < 100) {
+  cat("Warning: Low number of accepted samples. Consider increasing tolerance or iterations.\n\n")
+}
+
+# Step 5: Plot joint and marginal posterior distributions
+
+if(n_accepted > 0) {
+  # Create data frame for plotting
+  posterior_data <- data.frame(
+    Param1 = accepted_param1,
+    Param2 = accepted_param2,
+    RSS = accepted_rss
+  )
+  
+  # Set up plotting area
+  par(mfrow=c(2,2))
+  
+  # Plot 1: Joint posterior distribution (scatter plot)
+  plot(accepted_param1, accepted_param2, 
+       xlab = paste("Parameter", top_2_params$Parameter[1]),
+       ylab = paste("Parameter", top_2_params$Parameter[2]),
+       main = "Joint Posterior Distribution",
+       col = "darkblue", pch = 16, cex = 0.6)
+  
+  # Add original estimates
+  points(param1_value, param2_value, col = "red", pch = 4, cex = 2, lwd = 3)
+  legend("topright", c("Posterior samples", "Original estimate"), 
+         col = c("darkblue", "red"), pch = c(16, 4), cex = 0.8)
+  
+  # Plot 2: Marginal posterior of Parameter 1
+  hist(accepted_param1, breaks = 30, freq = FALSE, 
+       col = "lightblue", border = "darkblue",
+       xlab = paste("Parameter", top_2_params$Parameter[1]),
+       main = paste("Marginal Posterior:", top_2_params$Parameter[1]))
+  
+  # Add density curve
+  if(length(accepted_param1) > 1) {
+    dens1 <- density(accepted_param1)
+    lines(dens1, col = "red", lwd = 2)
+  }
+  
+  # Add original estimate
+  abline(v = param1_value, col = "red", lwd = 2, lty = 2)
+  
+  # Plot 3: Marginal posterior of Parameter 2
+  hist(accepted_param2, breaks = 30, freq = FALSE,
+       col = "lightgreen", border = "darkgreen",
+       xlab = paste("Parameter", top_2_params$Parameter[2]),
+       main = paste("Marginal Posterior:", top_2_params$Parameter[2]))
+  
+  # Add density curve
+  if(length(accepted_param2) > 1) {
+    dens2 <- density(accepted_param2)
+    lines(dens2, col = "red", lwd = 2)
+  }
+  
+  # Add original estimate
+  abline(v = param2_value, col = "red", lwd = 2, lty = 2)
+  
+  # Plot 4: RSS distribution of accepted samples
+  hist(accepted_rss, breaks = 30, freq = FALSE,
+       col = "lightyellow", border = "orange",
+       xlab = "RSS", main = "RSS Distribution of Accepted Samples")
+  abline(v = RSS_original, col = "red", lwd = 2, lty = 2)
+  abline(v = epsilon, col = "blue", lwd = 2, lty = 2)
+  legend("topright", c("Original RSS", "Tolerance"), 
+         col = c("red", "blue"), lty = 2, lwd = 2, cex = 0.8)
+  
+  # Reset plotting
+  par(mfrow=c(1,1))
+  
+  # Statistical summary of posterior distributions
+  cat("Posterior Distribution Summary:\n")
+  cat("==============================\n\n")
+  
+  cat("Parameter", top_2_params$Parameter[1], "posterior:\n")
+  cat("  Mean:", mean(accepted_param1), "\n")
+  cat("  Median:", median(accepted_param1), "\n")
+  cat("  SD:", sd(accepted_param1), "\n")
+  cat("  95% Credible Interval: [", quantile(accepted_param1, 0.025), ",", 
+      quantile(accepted_param1, 0.975), "]\n")
+  cat("  Original estimate:", param1_value, "\n\n")
+  
+  cat("Parameter", top_2_params$Parameter[2], "posterior:\n")
+  cat("  Mean:", mean(accepted_param2), "\n")
+  cat("  Median:", median(accepted_param2), "\n")
+  cat("  SD:", sd(accepted_param2), "\n")
+  cat("  95% Credible Interval: [", quantile(accepted_param2, 0.025), ",", 
+      quantile(accepted_param2, 0.975), "]\n")
+  cat("  Original estimate:", param2_value, "\n\n")
+  
+  # Correlation between parameters
+  if(length(accepted_param1) > 1 && length(accepted_param2) > 1) {
+    param_correlation <- cor(accepted_param1, accepted_param2)
+    cat("Posterior correlation between parameters:", round(param_correlation, 4), "\n\n")
+  }
+  
+} else {
+  cat("No samples were accepted. Consider:\n")
+  cat("- Increasing the tolerance (epsilon)\n")
+  cat("- Expanding the prior ranges\n")
+  cat("- Increasing the number of iterations\n")
+}
+
+# Step 6: Results Explanation
+cat("RESULTS EXPLANATION:\n")
+cat("====================\n\n")
+
+cat("1. PARAMETER SELECTION:\n")
+cat("   The two parameters with largest absolute values were selected for ABC analysis.\n")
+cat("   These parameters have the strongest influence on the model predictions.\n\n")
+
+cat("2. PRIOR SPECIFICATION:\n")
+cat("   Uniform priors were centered around the OLS estimates with ±20% range.\n")
+cat("   This represents reasonable uncertainty around the point estimates.\n\n")
+
+cat("3. ABC PROCEDURE:\n")
+cat("   - Drew samples from uniform priors for the two selected parameters\n")
+cat("   - Fixed other parameters at their OLS estimates\n")
+cat("   - Calculated RSS for each parameter combination\n")
+cat("   - Accepted samples with RSS ≤ tolerance\n\n")
+
+if(n_accepted > 0) {
+  cat("4. POSTERIOR INTERPRETATION:\n")
+  cat("   - Joint distribution shows parameter correlation structure\n")
+  cat("   - Marginal distributions reveal individual parameter uncertainty\n")
+  cat("   - Credible intervals provide Bayesian uncertainty quantification\n")
+  cat("   - Posterior means approximate the original OLS estimates\n\n")
+  
+  cat("5. BAYESIAN vs FREQUENTIST:\n")
+  cat("   - ABC provides full posterior distributions (not just point estimates)\n")
+  cat("   - Credible intervals have direct probability interpretation\n")
+  cat("   - Joint distribution captures parameter dependencies\n")
+  cat("   - Results consistent with OLS but with uncertainty quantification\n")
+} else {
+  cat("4. TROUBLESHOOTING:\n")
+  cat("   - No samples accepted suggests tolerance may be too strict\n")
+  cat("   - Consider increasing epsilon or expanding prior ranges\n")
+  cat("   - Alternative: increase number of iterations\n")
+}
+
+cat("\nCONCLUSION:\n")
+cat("The ABC analysis provides Bayesian posterior distributions for the most\n")
+cat("influential parameters, offering richer uncertainty quantification than\n")
+cat("traditional frequentist approaches while maintaining computational feasibility.\n")
+```
+
